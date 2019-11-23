@@ -15,9 +15,12 @@ class LearningAgent:
     def __init__(self, nS, nA):
 
         # define this function
-        self.nS = nS + 1
-        self.nA = nA + 1
-        self.table = np.zeros((nS+1, nA+1)) # matrix for Q-learning algorithm (ignore index zero)
+        self.nS = nS
+        self.nA = nA
+        self.table = np.zeros((nS, nA)) # matrix for Q-learning algorithm (ignore index zero)
+        self.time = 1
+        self.learning_rate = 0.1
+        self.discount_rate = 0.9
         # define this function
 
     # Select one action, used when learning
@@ -27,15 +30,17 @@ class LearningAgent:
     # returns
     # a - the index to the action in aa
     def selectactiontolearn(self, st, aa):
-        # define this function
-        # print("select one action to learn better")
+        #Selects an action but also takes risks
+        takerisk = np.random.choice([True, False], p=[0.5, 0.5]) #inneficient
+        self.time += 1
+        
+        if takerisk:
+            return np.random.choice(np.arange(len(aa)))
+        
 
-        stateline = np.copy(self.table[st,])
-        for i in range(self.nA):
-                if i not in aa:
-                        stateline[i] = -math.inf # will never select not given states
+        stateline = np.copy(self.table[st,:len(aa)])
         max_val = max(stateline) # maximum value in this line (action to be taken)
-
+        
         #Get distribution of this line (can be multiple best movements)
         validation = list(map(lambda x: 1 if x == max_val else 0, stateline))
         amount = list(validation).count(1)
@@ -43,7 +48,7 @@ class LearningAgent:
         distribution = np.true_divide(distribution, amount) #Distribution to randomly select
         
         #Randomly select the best line to pick
-        a = np.random.choice(np.arange(self.nA), p=distribution)
+        a = np.random.choice(np.arange(len(aa)), p=distribution)
         
         # define this function
         return a
@@ -55,9 +60,19 @@ class LearningAgent:
     # returns
     # a - the index to the action in aa
     def selectactiontoexecute(self, st, aa):
-        # define this function
-        a = 0
-        # print("select one action to see if I learned")
+        #Selects best action out of what it has learned
+        stateline = np.copy(self.table[st,:len(aa)])
+        max_val = max(stateline) # maximum value in this line (action to be taken)
+        
+        #Get distribution of this line (can be multiple best movements)
+        validation = list(map(lambda x: 1 if x == max_val else 0, stateline))
+        amount = list(validation).count(1)
+        distribution = np.array(validation)
+        distribution = np.true_divide(distribution, amount) #Distribution to randomly select
+        
+        #Randomly select the best line to pick
+        a = np.random.choice(np.arange(len(aa)), p=distribution)
+        
         return a
 
     # this function is called after every action
@@ -67,13 +82,13 @@ class LearningAgent:
     # r - reward obtained
     def learn(self, ost, nst, a, r):
         # define this function
-        #print("learn something from this data")
+        self.table[ost, a] = self.table[ost,a] + self.learning_rate * (r + self.discount_rate * max(self.table[nst,]) - self.table[ost,a])
 
         return
-
+"""
 a = LearningAgent(5,10)
 a.table[2,4] = 5
 a.table[2,7] = 5
 
 for _ in range(100):
-        print(a.selectactiontolearn(2,[2,3,4,5,6,7,10]))
+        print(a.selectactiontolearn(2,[2,3,4,5,6,7,10]))"""
