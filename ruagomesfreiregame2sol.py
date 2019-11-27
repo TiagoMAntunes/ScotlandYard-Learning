@@ -2,8 +2,8 @@ import random
 
 import numpy as np
 import math
-from scipy.special import softmax
-
+import sys
+from random import choice
 # LearningAgent to implement
 # no knowledeg about the environment can be used
 # the code should work even with another environment
@@ -21,10 +21,9 @@ class LearningAgent:
         self.nA = nA
         self.table = np.zeros((nS, nA)) # matrix for Q-learning algorithm (ignore index zero)
         self.frequencies = np.zeros((nS,nA)) #holds the frequencies of each state and action
-        self.time = 1
-        self.learning_rate = 0.15
-        self.discount_rate = 0.85
-        self.number_tries = 7 #arbitrary value
+        self.visited = [0 for _ in range(nS)]
+        self.learning_rate = 0.7
+        self.discount_rate = 0.9
         # define this function
 
     # Select one action, used when learning
@@ -35,9 +34,9 @@ class LearningAgent:
     # a - the index to the action in aa
     def selectactiontolearn(self, st, aa):
         """ Selects an action to take, while exploring unexplored ones """
-        probs = softmax(np.copy(self.table[st,:len(aa)]))
-        a = np.random.choice(np.arange(len(aa)), p=probs)
-
+        a = np.argmin(self.frequencies[st,:len(aa)])
+        self.frequencies[st,a] += 1
+        self.visited[st] = len(aa)
         return a
 
     # Select one action, used when evaluating
@@ -60,6 +59,7 @@ class LearningAgent:
         #Randomly select the best action to take, out of the best
         a = np.random.choice(np.arange(len(aa)), p=distribution)
         
+        a = np.argmax(self.table[st,:len(aa)])
         return a
 
     # this function is called after every action
@@ -69,5 +69,5 @@ class LearningAgent:
     # r - reward obtained
     def learn(self, ost, nst, a, r):
         # Q-learning formula
-        self.table[ost, a] = self.table[ost,a] + self.learning_rate * (r + self.discount_rate * max(self.table[nst,]) - self.table[ost,a])
+        self.table[ost, a] = self.table[ost,a] + self.learning_rate * (r + self.discount_rate * (max(self.table[nst,:self.visited[nst]]) if self.visited[nst] != 0 else 0) - self.table[ost,a])
         return

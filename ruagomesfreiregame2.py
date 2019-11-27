@@ -24,12 +24,12 @@ def runagent(A, T, R, I = 1, learningphase=True, nlearn = 1000, ntest = 100):
                         print(st,a)
                 r = R[st]
                 J += r
-                #print(st,nst,a,r)
+                ##print(st,nst,a,r)
 
                 if learningphase:
                         A.learn(st,nst,a,r)
                 else:
-                        #print(st,nst,a,r)
+                        ##print(st,nst,a,r)
                         pass
                 
                 st = nst
@@ -42,9 +42,9 @@ def runagent(A, T, R, I = 1, learningphase=True, nlearn = 1000, ntest = 100):
 # due to the randomness in the learning process, we will run everythin NREP times
 # the final grades is based on the average on all of them
 
-NREP = 5
+NREP = 1
 val = [0,0,0,0]
-print("exemplo 1")
+#print("exemplo 1")
 for nrep in range(0,NREP):       
         A = LearningAgent(114,15)
         # your solution will be tested with other environments    
@@ -61,24 +61,25 @@ for nrep in range(0,NREP):
         # T contains the list of possible next states
         # T[14][0] - contains the possible next states of state 14
 
-        print("# learning phase")
+        #print("# learning phase")
         # in this phase your agent will learn about the world
         # after these steps the agent will be tested
         runagent(A, T, R, I = 1, learningphase=True, nlearn = 500)
-        print("# testing phase")
+        #print("# testing phase")
         # in this phase your agent will execute what it learned in the world
         # the total reward obtained needs to be the optimal
         Jn = runagent(A, T, R, I = 1, learningphase=False, ntest = 10)
         val[0] += Jn
-        print("average reward",Jn)
-        print("# 2nd learning phase")
+        #print("average reward",Jn)
+        #print(A.frequencies)
+        #print("# 2nd learning phase")
         runagent(A, T, R, I = 1, learningphase=True, nlearn = 10000)
-        print("# testing phase")
+        #print("# testing phase")
         Jn = runagent(A, T, R, I = 1, learningphase=False, ntest = 10)
         val[1] += Jn
-        print("average reward",Jn)
-
-print("exemplo 2")
+        #print("average reward",Jn)
+        #print(A.frequencies)
+#print("exemplo 2")
 for nrep in range(0,NREP):
         
         A = LearningAgent(114,15)
@@ -90,32 +91,34 @@ for nrep in range(0,NREP):
         # T[14][0] - contains the possible next states of state 14
 
 
-        print("# learning phase")
+        #print("# learning phase")
         # in this phase your agent will learn about the world
         # after these steps the agent will be tested
         runagent(A, T, R, I = 1, learningphase=True, nlearn = 1000)
-        print("# testing phase")
+        #print("# testing phase")
         # in this phase your agent will execute what it learned in the world
         # the total reward obtained needs to be the optimal
         Jn = runagent(A, T, R, I = 1, learningphase=False, ntest = 10)
         val[2] += Jn
-        print("average reward",Jn)
-        print("# 2nd learning phase")
+        #print("average reward",Jn)
+        #print(A.frequencies)
+        #print("# 2nd learning phase")
         runagent(A, T, R, I = 1, learningphase=True, nlearn = 10000)
-        print("# testing phase")
+        #print("# testing phase")
         Jn = runagent(A, T, R, I = 1, learningphase=False, ntest = 10)
         val[3] += Jn
-        print("average reward",Jn)        
-
+        #print("average reward",Jn)        
+        #print(A.frequencies)
 
 val = list([ii/NREP for ii in val])
-print(val)
+#print(val)
 cor = [(val[0]) >= 0.3, (val[1]) >= 0.3, (val[2]) >= -0.85, (val[3]) >= -0.6]
 # these values are not the optimal, they include some slack
-print(cor)
+#print(cor)
 
 grade = 0
 for correct,mark in zip(cor,[3,7,3,7]):
         if correct:
                 grade += mark
 print("Grade in these tests (the final will also include hidden tests) : ", grade)        
+#print('{},{},{},{}'.format(sys.argv[1],sys.argv[2],val,grade))
