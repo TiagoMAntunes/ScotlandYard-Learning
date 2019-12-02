@@ -1,9 +1,5 @@
 import random
 
-import numpy as np
-import math
-import sys
-from random import choice
 # LearningAgent to implement
 # no knowledeg about the environment can be used
 # the code should work even with another environment
@@ -19,8 +15,8 @@ class LearningAgent:
         # define this function
         self.nS = nS
         self.nA = nA
-        self.table = np.zeros((nS, nA)) # matrix for Q-learning algorithm (ignore index zero)
-        self.frequencies = np.zeros((nS,nA)) #holds the frequencies of each state and action
+        self.table = [[0 for _ in range(nA)] for _ in range(nS)]
+        self.frequencies = [[0 for _ in range(nA)] for _ in range(nS)]
         self.visited = [0 for _ in range(nS)]
         self.learning_rate = 0.7
         self.discount_rate = 0.9
@@ -34,8 +30,8 @@ class LearningAgent:
     # a - the index to the action in aa
     def selectactiontolearn(self, st, aa):
         """ Selects an action to take, while exploring unexplored ones """
-        a = np.argmin(self.frequencies[st,:len(aa)])
-        self.frequencies[st,a] += 1
+        a = self.frequencies[st].index(min(self.frequencies[st][:len(aa)]))
+        self.frequencies[st][a] += 1
         self.visited[st] = len(aa)
         return a
 
@@ -47,20 +43,19 @@ class LearningAgent:
     # a - the index to the action in aa
     def selectactiontoexecute(self, st, aa):
         #Selects best action out of what it has learned
-        stateline = np.copy(self.table[st,:len(aa)]) #get actions values
+        stateline = [] + self.table[st][:len(aa)] #get actions values
         max_val = max(stateline) # maximum value in this line (action to be taken)
         
         #Randomly select the best ones
         validation = list(map(lambda x: 1 if x == max_val else 0, stateline))
-        amount = list(validation).count(1)
-        distribution = np.array(validation)
-        distribution = np.true_divide(distribution, amount) #Distribution to randomly select
+        vals = []
+        for i, val in enumerate(stateline):
+            if val == max_val:
+                vals.append(i)
         
         #Randomly select the best action to take, out of the best
-        a = np.random.choice(np.arange(len(aa)), p=distribution)
-        
-        a = np.argmax(self.table[st,:len(aa)])
-        return a
+        a = random.randint(0, len(vals) - 1)
+        return vals[a]
 
     # this function is called after every action
     # st - original state
@@ -69,5 +64,5 @@ class LearningAgent:
     # r - reward obtained
     def learn(self, ost, nst, a, r):
         # Q-learning formula
-        self.table[ost, a] = self.table[ost,a] + self.learning_rate * (r + self.discount_rate * (max(self.table[nst,:self.visited[nst]]) if self.visited[nst] != 0 else 0) - self.table[ost,a])
+        self.table[ost][a] = self.table[ost][a] + self.learning_rate * (r + self.discount_rate * (max(self.table[nst][:self.visited[nst]]) if self.visited[nst] != 0 else 0) - self.table[ost][a])
         return
