@@ -1,3 +1,5 @@
+#grupo 2 Tiago Antunes 89545 Mariana Oliveira 89504
+
 import random
 
 # LearningAgent to implement
@@ -31,8 +33,7 @@ class LearningAgent:
     def selectactiontolearn(self, st, aa):
         """ Selects an action to take, while exploring unexplored ones """
         a = self.frequencies[st].index(min(self.frequencies[st][:len(aa)]))
-        self.frequencies[st][a] += 1
-        self.visited[st] = len(aa)
+        self.visited[st] = max(self.visited[st], len(aa)) # Number of maximum states that were decided to or not to be learn at this moment
         return a
 
     # Select one action, used when evaluating
@@ -43,7 +44,7 @@ class LearningAgent:
     # a - the index to the action in aa
     def selectactiontoexecute(self, st, aa):
         #Selects best action out of what it has learned
-        stateline = [] + self.table[st][:len(aa)] #get actions values
+        stateline = [] + self.table[st][:min(len(aa), self.visited[st])] #get actions values from the learning performed
         max_val = max(stateline) # maximum value in this line (action to be taken)
         
         #Randomly select the best ones
@@ -65,4 +66,5 @@ class LearningAgent:
     def learn(self, ost, nst, a, r):
         # Q-learning formula
         self.table[ost][a] = self.table[ost][a] + self.learning_rate * (r + self.discount_rate * (max(self.table[nst][:self.visited[nst]]) if self.visited[nst] != 0 else 0) - self.table[ost][a])
+        self.frequencies[ost][a] += 1 #Visited action, increment frequency
         return
